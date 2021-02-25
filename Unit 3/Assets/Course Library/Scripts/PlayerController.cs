@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
     //Declare rigidbody
     private Rigidbody playerRb;
+
     public float jumpForce;
     public float gravityModifier;
+
     //Grounded Check
-    public bool isOnGround = true; 
+    public bool isOnGround = true;
+
+    //Game Over Boolean, default = false;
+    public bool gameOver = false;
 
     void Start()
     {
@@ -31,9 +37,17 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        //If box collider collides with an object then boolean is set to true;
-        isOnGround = true;
+        //If box collider collides with an object with ground tag then boolean is set to true;
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isOnGround = true;
+        }
+        //Else if collision with object with obstacle tag display debug text game over and set gameover boolean to true
+        else if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            gameOver = true;
+            Debug.Log("Game Over!");
+        }
     }
-
 
 }
