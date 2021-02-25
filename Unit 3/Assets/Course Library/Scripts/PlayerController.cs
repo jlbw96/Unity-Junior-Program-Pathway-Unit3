@@ -9,6 +9,14 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRb;
     //Declare a new animator
     private Animator playerAnim;
+    //Declare a particle system for death and dirt
+    public ParticleSystem explosionParticle;
+    public ParticleSystem dirtParticle;
+    //Declare jumpsound and crashsound audio clips
+    public AudioClip jumpSound;
+    public AudioClip crashSound;
+    //Declare an audio source for the sound effects
+    private AudioSource playerAudio;
 
     public float jumpForce = 10;
     public float gravityModifier = 1;
@@ -24,6 +32,8 @@ public class PlayerController : MonoBehaviour
         playerRb = GetComponent<Rigidbody>();
         playerAnim = GetComponent<Animator>();
         Physics.gravity *= gravityModifier;
+        //Initialise the audiosource on start
+        playerAudio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -33,10 +43,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isOnGround && !gameOver)
         {
             //Add force to the rigidbody and set boolean to false;
-            //Change animation to jump
+            //Change animation to jump and stop dirt animation, finally play jump sound
             playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isOnGround = false;
             playerAnim.SetTrigger("Jump_trig");
+            dirtParticle.Stop();
+            playerAudio.PlayOneShot(jumpSound, 1.0f);
         }
     }
 
@@ -46,15 +58,20 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isOnGround = true;
+            dirtParticle.Play();
         }
         //Else if collision with object with obstacle tag display debug text game over
         //set gameover boolean to true, set death animation to true and set int to 1
+        //Finally play the explosion particle effect and crash sound
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
             gameOver = true;
             Debug.Log("Game Over!");
+            explosionParticle.Play();
+            dirtParticle.Stop();
             playerAnim.SetBool("Death_b", true);
             playerAnim.SetInteger("DeathType_int", 1);
+            playerAudio.PlayOneShot(crashSound, 1.0f);
         }
     }
 
